@@ -56,8 +56,14 @@ class CE(object) :
             raise TypeError("Commission inconnut")
         self.cursor.execute("INSERT into activitee (nom, idcommission) values ('" + nom + "'," + str(idcommission) + ")")
 	
-    def activitee_liste(self) :
-        self.cursor.execute("SELECT ac.nom, co.nom, ac.date from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid")
+    def activitee_liste(self, liste = None) :
+        if liste :
+            rapport = ''
+            for lis in liste :
+                rapport = rapport + "'" + lis + "',"
+            self.cursor.execute("SELECT ac.nom, co.nom, ac.date from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid WHERE co.nom in (" + rapport[:-1] + ")")
+        else :
+            self.cursor.execute("SELECT ac.nom, co.nom, ac.date from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid")
         return self.cursor.fetchall()
     
     def activitee_synthese(self) :
@@ -65,25 +71,7 @@ class CE(object) :
         return self.cursor.fetchall()
         
 	"""
-    def rapport(self, nom) :
-        #try :
-        self.cursor.execute("INSERT into rapport (nom) values('" + nom + "')")
-        #except sqlite3.IntegrityError :
-        #    pass
-        # on retourne l'id du rapport
-        self.cursor.execute("SELECT rowid from rapport where nom ='" + nom + "'")
-        return self.cursor.fetchone()[0]
-
-    def rapport_nom(self, id_nom) :
-        
-        self.cursor.execute("SELECT nom from rapport where rowid='" + str(id_nom) + "'")
-        return self.cursor.fetchone()[0]
-
-    def rapport_liste(self) :
-        
-        self.cursor.execute("SELECT * from rapport")
-        return self.cursor.fetchall()
-
+    
     def rapport_evenement(self, liste = None) :
         
         if liste :
