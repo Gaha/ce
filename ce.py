@@ -41,13 +41,22 @@ class CE(object) :
         return self.cursor.fetchall()
 
     def commission_ajout(self, nom) :
+        """
+        Ajout un commission
+        """
         self.cursor.execute("INSERT into Commission (nom) values ('" + nom + "')")
 		
     def commission_liste(self) :
+        """
+        Liste les commissions
+        """
         self.cursor.execute("SELECT * from Commission")
         return self.cursor.fetchall()
 	
     def activitee_ajout(self, nom, commission) :
+        """
+        Ajoute une activitée
+        """
         # on recupère l'ID de la commission
         self.cursor.execute("SELECT rowid from Commission where nom = '" + commission +"'")
         try :
@@ -56,53 +65,34 @@ class CE(object) :
             raise TypeError("Commission inconnut")
         self.cursor.execute("INSERT into activitee (nom, idcommission) values ('" + nom + "'," + str(idcommission) + ")")
 	
-    def activitee_liste(self, liste = None) :
-        if liste :
+    def activitee_liste(self, commission = None) :
+        """
+        Liste les activitées
+        Peuvent être filtré par commission
+        """
+        if commission :
             rapport = ''
-            for lis in liste :
+            for lis in commission :
                 rapport = rapport + "'" + lis + "',"
             self.cursor.execute("SELECT ac.nom, co.nom, ac.date from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid WHERE co.nom in (" + rapport[:-1] + ")")
         else :
             self.cursor.execute("SELECT ac.nom, co.nom, ac.date from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid")
         return self.cursor.fetchall()
     
-    def activitee_synthese(self) :
-        self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid group by co.nom")
-        return self.cursor.fetchall()
-        
-	"""
-    
-    def rapport_evenement(self, liste = None) :
-        
-        if liste :
-            # on récupère les idrapport de la liste
+    def activitee_synthese(self, commission = None) :
+        """
+        Synthèse des activitées
+        Peuvent être filtré par commission
+        """
+        if commission :
             rapport = ''
-            for lis in liste :
+            for lis in commission :
                 rapport = rapport + "'" + lis + "',"
-            self.cursor.execute("SELECT ev.rowid, rap.nom, ev.famille, ev.genre, ev.message FROM evenement ev INNER JOIN rapport rap ON ev.idrapport = rap.rowid WHERE rap.nom in (" + rapport[:-1] + ")")
+            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid WHERE co.nom in (" + rapport[:-1] + ") group by co.nom")
         else :
-            # intérogation de la base
-            self.cursor.execute("SELECT ev.rowid, rap.nom, ev.famille, ev.genre, ev.message FROM evenement ev INNER JOIN rapport rap ON ev.idrapport = rap.rowid")
+            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid group by co.nom")
         return self.cursor.fetchall()
 
-    def rapport_synthese(self, liste = None):
-        
-        if liste :
-            # on récupère les idrapport de la liste
-            rapport = ''
-            for lis in liste :
-                rapport = rapport + "'" + lis + "',"
-            self.cursor.execute("SELECT rap.nom, ev.famille, ev.genre, count(ev.genre) as Total from evenement ev inner join rapport rap on ev.idrapport = rap.rowid where rap.nom in (" + rapport[:-1] + ") group by rap.nom, ev.famille, ev.genre")
-        else :
-            self.cursor.execute("SELECT rap.nom, ev.famille, ev.genre, count(ev.genre) as Total from evenement ev inner join rapport rap on ev.idrapport = rap.rowid group by rap.nom, ev.famille, ev.genre")
-        return self.cursor.fetchall()
-
-
-        # pour chaque famille du rapport on compte le nombre de genre
-
-    def evenement_nouveau(self, idrapport, famille, genre, message = "") :
-        self.cursor.execute("INSERT INTO evenement VALUES(null," + str(idrapport) + ",'" + str(famille) + "','" + genre + "','" + message +"')")
-	"""
     def __del__(self):
         self.bdd.commit()
         self.cursor.close()
