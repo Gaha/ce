@@ -28,3 +28,7 @@ if __name__ == '__main__':
 	base.commission_ajout("Voyage")
 	base.commission_ajout("Hebergement")
     
+    # ajout d'activitées
+	base.activitee_ajout("Tournoi de badminton","Sport")
+	base.activitee_ajout("Initiation Floorball","Sport")
+	base.activitee_ajout("Piece de theatre","Activitees,Decouverte")
