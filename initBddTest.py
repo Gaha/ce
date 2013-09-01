@@ -21,7 +21,7 @@ if __name__ == '__main__':
 	base.agent_ajout("ZIMMAN","Bouffi")
 	
 	#initialisation table commission
-	base.commission_ajout("Activitees,Decouverte")
+	base.commission_ajout("Activitees,Decouvertes")
 	base.commission_ajout("Service au personnel")
 	base.commission_ajout("Sport")
 	base.commission_ajout("Jeunesse")
@@ -31,4 +31,4 @@ if __name__ == '__main__':
     # ajout d'activitées
 	base.activitee_ajout("Tournoi de badminton","Sport")
 	base.activitee_ajout("Initiation Floorball","Sport")
-	base.activitee_ajout("Piece de theatre","Activitees,Decouverte")
+	base.activitee_ajout("Piece de theatre","Activitees,Decouvertes")
