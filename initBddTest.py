@@ -39,4 +39,7 @@ if __name__ == '__main__':
 	
 	# ajout des participations
 	base.participation_ajout("MARCEL","Henri","Match Volley")
+	base.participation_ajout("DUPONT","Marcel","Match Volley",0,3)
+	base.participation_ajout("ZIMMAN","Bouffi","Match Volley",1)
+	base.participation_ajout("MARCEL","Henri","Boowling",1,2)
 	
