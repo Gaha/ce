@@ -61,9 +61,9 @@ class CE(object) :
             rapport = ''
             for lis in commission :
                 rapport = rapport + "'" + lis + "',"
-            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid WHERE co.nom in (" + rapport[:-1] + ") group by co.nom")
+            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Commission co inner join Activitee ac ON co.rowid = ac.idcommission WHERE co.nom in (" + rapport[:-1] + ") group by co.nom")
         else :
-            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid group by co.nom")
+            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Commission co inner join Activitee ac ON co.rowid = ac.idcommission group by co.nom")
         return self.cursor.fetchall()
     
     def activitee_ajout(self, nom, commission) :
@@ -78,18 +78,23 @@ class CE(object) :
             raise TypeError("Commission inconnut")
         self.cursor.execute("INSERT into Activitee (nom, idcommission) values ('" + nom + "'," + str(idcommission) + ")")
 	
-    def activitee_liste(self, commission = None) :
+    def activitee_liste(self, activitee = None, commission = None) :
         """
         Liste les activitées
-        Peuvent être filtré par commission
+        Peuvent être filtré par activitee ou par commission
         """
-        if commission :
+        if activitee :
+            rapport = ''
+            for lis in activitee :
+                rapport = rapport + "'" + lis + "',"
+            self.cursor.execute("SELECT ac.date, co.nom, ac.nom from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid WHERE ac.nom in (" + rapport[:-1] + ")")
+        elif commission :
             rapport = ''
             for lis in commission :
                 rapport = rapport + "'" + lis + "',"
-            self.cursor.execute("SELECT ac.nom, co.nom, ac.date from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid WHERE co.nom in (" + rapport[:-1] + ")")
+            self.cursor.execute("SELECT ac.date, co.nom, ac.nom from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid WHERE co.nom in (" + rapport[:-1] + ")")
         else :
-            self.cursor.execute("SELECT ac.nom, co.nom, ac.date from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid")
+            self.cursor.execute("SELECT ac.date, co.nom, ac.nom from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid")
         return self.cursor.fetchall()
     
     
@@ -143,7 +148,7 @@ if __name__ == '__main__':
     print Table("COMMISSION SYNTHESE", ["Commission","Activitée"], base.commission_synthese())
     print
     
-    print Table("ACTIVITEE", ["Nom","Commission","Date"], base.activitee_liste())
+    print Table("ACTIVITEE", ["Date","Commission","Nom"], base.activitee_liste())
     print
     
     print Table("Participations", ["Nom","Prenom","Activitée","Conjoint","Enfant","Externe","Etat"], base.participation_liste())
