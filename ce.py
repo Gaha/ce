@@ -95,7 +95,7 @@ class CE(object) :
                 rapport = rapport + "'" + lis + "',"
             self.cursor.execute("SELECT ac.date, co.nom, ac.nom, SUM(pa.agent) + SUM(pa.conjoint) + SUM(pa.enfant) + SUM(pa.externe) AS nbparticipe FROM Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid LEFT JOIN Participation pa ON pa.idactivitee = ac.rowid WHERE co.nom in (" + rapport[:-1] + ") GROUP BY ac.nom")
         else :
-            self.cursor.execute("SELECT ac.date, co.nom, ac.nom, SUM(pa.agent) + SUM(pa.conjoint) + SUM(pa.enfant) + SUM(pa.externe) AS nbparticipe FROM Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid LEFT JOIN Participation pa ON pa.idactivitee = ac.rowid GROUP BY ac.nom")
+            self.cursor.execute("SELECT ac.date, co.nom, ac.nom, SUM(pa.agent) + SUM(pa.conjoint) + SUM(pa.enfant) + SUM(pa.externe) AS int FROM Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid LEFT JOIN Participation pa ON pa.idactivitee = ac.rowid GROUP BY ac.nom")
         return self.cursor.fetchall()
     
     
