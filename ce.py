@@ -110,11 +110,18 @@ class CE(object) :
             raise TypeError("Activitee inconnut")
         self.cursor.execute("INSERT into Participation (idagent, idactivitee, conjoint, enfant, externe, etat) values (" + str(idagent) + "," + str(idactivitee) + "," + str(conjoint) + "," + str(enfant) + "," + str(externe) + ",'" + etat +"')")
     
-    def participation_liste(self) :
+    def participation_liste(self, activitee = None) :
         """
-        Liste les participation
+        Liste les participations
+        Filtre par activitee
         """
-        self.cursor.execute("SELECT ag.nom, ag.prenom, ac.nom, pa.conjoint, pa.enfant, pa.externe, pa.etat FROM Participation pa INNER JOIN Agent ag ON pa.idagent = ag.rowid INNER JOIN Activitee ac ON pa.idactivitee = ac.rowid")
+        if activitee :
+            rapport = ''
+            for lis in activitee :
+                rapport = rapport + "'" + lis + "',"
+            self.cursor.execute("SELECT ag.nom, ag.prenom, ac.nom, pa.conjoint, pa.enfant, pa.externe, pa.etat FROM Participation pa INNER JOIN Agent ag ON pa.idagent = ag.rowid INNER JOIN Activitee ac ON pa.idactivitee = ac.rowid WHERE ac.nom in (" + rapport[:-1] + ")")
+        else :
+            self.cursor.execute("SELECT ag.nom, ag.prenom, ac.nom, pa.conjoint, pa.enfant, pa.externe, pa.etat FROM Participation pa INNER JOIN Agent ag ON pa.idagent = ag.rowid INNER JOIN Activitee ac ON pa.idactivitee = ac.rowid")
         return self.cursor.fetchall()
         
         
@@ -138,7 +145,6 @@ if __name__ == '__main__':
     print Table("ACTIVITEE SYNTHESE", ["Commission","Nombre"], base.activitee_synthese())
     print
     
-    print base.participation_liste()
     print Table("Participations", ["Nom","Prenom","Activitée","Conjoint","Enfant","Externe","Etat"], base.participation_liste())
     print
     
