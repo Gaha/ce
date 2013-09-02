@@ -37,3 +37,6 @@ if __name__ == '__main__':
 	base.activitee_ajout("Boowling","Activitees,Decouvertes")
 	base.activitee_ajout("Saint-Nicolas cinema","Jeunesse")
 	
+	# ajout des participations
+	base.participation_ajout("MARCEL","Henri","Match Volley")
+	
