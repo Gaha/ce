@@ -24,7 +24,7 @@ class CE(object) :
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Agent (nom text primary key, prenom text)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Commission (nom text primary key)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Activitee (nom text, idcommission integer, date timestamp DEFAULT current_timestamp)')
-        self.cursor.execute('CREATE TABLE IF NOT EXISTS Participation (idagent integer, idactivitee integer, conjoint integer, enfant integer, externe integer, etat text)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS Participation (idagent integer, idactivitee integer, agent integer, conjoint integer, enfant integer, externe integer, etat text)')
 
     def agent_ajout(self, nom, prenom) :
         """
@@ -98,7 +98,7 @@ class CE(object) :
         return self.cursor.fetchall()
     
     
-    def participation_ajout(self, nom, prenom, activitee, conjoint = 0, enfant = 0, externe = 0, etat = "Inscrit") :
+    def participation_ajout(self, nom, prenom, activitee, conjoint = 0, enfant = 0, externe = 0, agent = 1, etat = "Inscrit") :
         """
         Ajoute une participation
         """
@@ -114,7 +114,7 @@ class CE(object) :
             idactivitee = self.cursor.fetchone()[0]
         except TypeError :
             raise TypeError("Activitee inconnut")
-        self.cursor.execute("INSERT into Participation (idagent, idactivitee, conjoint, enfant, externe, etat) values (" + str(idagent) + "," + str(idactivitee) + "," + str(conjoint) + "," + str(enfant) + "," + str(externe) + ",'" + etat +"')")
+        self.cursor.execute("INSERT into Participation (idagent, idactivitee, agent, conjoint, enfant, externe, etat) values (" + str(idagent) + "," + str(idactivitee) + "," + str(agent) + "," + str(conjoint) + "," + str(enfant) + "," + str(externe) + ",'" + etat +"')")
     
     def participation_liste(self, activitee = None) :
         """
@@ -127,7 +127,7 @@ class CE(object) :
                 rapport = rapport + "'" + lis + "',"
             self.cursor.execute("SELECT ag.nom, ag.prenom, ac.nom, pa.conjoint, pa.enfant, pa.externe, pa.etat FROM Participation pa INNER JOIN Agent ag ON pa.idagent = ag.rowid INNER JOIN Activitee ac ON pa.idactivitee = ac.rowid WHERE ac.nom in (" + rapport[:-1] + ")")
         else :
-            self.cursor.execute("SELECT ag.nom, ag.prenom, ac.nom, pa.conjoint, pa.enfant, pa.externe, pa.etat FROM Participation pa INNER JOIN Agent ag ON pa.idagent = ag.rowid INNER JOIN Activitee ac ON pa.idactivitee = ac.rowid")
+            self.cursor.execute("SELECT ag.nom, ag.prenom, ac.nom, pa.agent, pa.conjoint, pa.enfant, pa.externe, pa.etat FROM Participation pa INNER JOIN Agent ag ON pa.idagent = ag.rowid INNER JOIN Activitee ac ON pa.idactivitee = ac.rowid")
         return self.cursor.fetchall()
         
         
@@ -151,6 +151,6 @@ if __name__ == '__main__':
     print Table("ACTIVITEE", ["Date","Commission","Nom"], base.activitee_liste())
     print
     
-    print Table("Participations", ["Nom","Prenom","Activitée","Conjoint","Enfant","Externe","Etat"], base.participation_liste())
+    print Table("Participations", ["Nom","Prenom","Activitée", "Agent", "Conjoint","Enfant","Externe","Etat"], base.participation_liste())
     print
     
