@@ -61,9 +61,9 @@ class CE(object) :
             rapport = ''
             for lis in commission :
                 rapport = rapport + "'" + lis + "',"
-            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Commission co inner join Activitee ac ON co.rowid = ac.idcommission WHERE co.nom in (" + rapport[:-1] + ") group by co.nom")
+            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Commission co LEFT JOIN Activitee ac ON co.rowid = ac.idcommission WHERE co.nom in (" + rapport[:-1] + ") group by co.nom")
         else :
-            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Commission co inner join Activitee ac ON co.rowid = ac.idcommission group by co.nom")
+            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Commission co LEFT JOIN Activitee ac ON co.rowid = ac.idcommission group by co.nom")
         return self.cursor.fetchall()
     
     def activitee_ajout(self, nom, commission) :
@@ -83,18 +83,19 @@ class CE(object) :
         Liste les activitées
         Peuvent être filtré par activitee ou par commission
         """
+        
         if activitee :
             rapport = ''
             for lis in activitee :
                 rapport = rapport + "'" + lis + "',"
-            self.cursor.execute("SELECT ac.date, co.nom, ac.nom from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid WHERE ac.nom in (" + rapport[:-1] + ")")
+            self.cursor.execute("SELECT ac.date, co.nom, ac.nom, SUM(pa.agent) + SUM(pa.conjoint) + SUM(pa.enfant) + SUM(pa.externe) AS nbparticipe FROM Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid LEFT JOIN Participation pa ON pa.idactivitee = ac.rowid WHERE ac.nom in (" + rapport[:-1] + ") GROUP BY ac.nom")
         elif commission :
             rapport = ''
             for lis in commission :
                 rapport = rapport + "'" + lis + "',"
-            self.cursor.execute("SELECT ac.date, co.nom, ac.nom from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid WHERE co.nom in (" + rapport[:-1] + ")")
+            self.cursor.execute("SELECT ac.date, co.nom, ac.nom, SUM(pa.agent) + SUM(pa.conjoint) + SUM(pa.enfant) + SUM(pa.externe) AS nbparticipe FROM Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid LEFT JOIN Participation pa ON pa.idactivitee = ac.rowid WHERE co.nom in (" + rapport[:-1] + ") GROUP BY ac.nom")
         else :
-            self.cursor.execute("SELECT ac.date, co.nom, ac.nom from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid")
+            self.cursor.execute("SELECT ac.date, co.nom, ac.nom, SUM(pa.agent) + SUM(pa.conjoint) + SUM(pa.enfant) + SUM(pa.externe) AS nbparticipe FROM Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid LEFT JOIN Participation pa ON pa.idactivitee = ac.rowid GROUP BY ac.nom")
         return self.cursor.fetchall()
     
     
@@ -121,6 +122,7 @@ class CE(object) :
         Liste les participations
         Filtre par activitee
         """
+        
         if activitee :
             rapport = ''
             for lis in activitee :
@@ -148,7 +150,7 @@ if __name__ == '__main__':
     print Table("COMMISSION SYNTHESE", ["Commission","Activitée"], base.commission_synthese())
     print
     
-    print Table("ACTIVITEE", ["Date","Commission","Nom"], base.activitee_liste())
+    print Table("ACTIVITEE", ["Date","Commission","Nom","Participants"], base.activitee_liste())
     print
     
     print Table("Participations", ["Nom","Prenom","Activitée", "Agent", "Conjoint","Enfant","Externe","Etat"], base.participation_liste())
