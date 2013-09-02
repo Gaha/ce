@@ -24,8 +24,7 @@ class CE(object) :
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Agent (nom text primary key, prenom text)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Commission (nom text primary key)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Activitee (nom text, idcommission integer, date timestamp DEFAULT current_timestamp)')
-        #self.cursor.execute('CREATE TABLE IF NOT EXISTS evenement (id integer primary key, idrapport integer, famille text, genre text, message text)')
-        #self.cursor.execute('CREATE TABLE If NOT EXISTS rapport (datecreation timestamp primary key DEFAULT current_timestamp, nom text)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS Participation (idagent integer, idactivitee integer, conjoint integer, enfant integer, externe integer, etat text)')
 
     def agent_ajout(self, nom, prenom) :
         """
@@ -63,7 +62,7 @@ class CE(object) :
             idcommission = self.cursor.fetchone()[0]
         except TypeError :
             raise TypeError("Commission inconnut")
-        self.cursor.execute("INSERT into activitee (nom, idcommission) values ('" + nom + "'," + str(idcommission) + ")")
+        self.cursor.execute("INSERT into Activitee (nom, idcommission) values ('" + nom + "'," + str(idcommission) + ")")
 	
     def activitee_liste(self, commission = None) :
         """
@@ -92,6 +91,33 @@ class CE(object) :
         else :
             self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid group by co.nom")
         return self.cursor.fetchall()
+    
+    def participation_ajout(self, nom, prenom, activitee, conjoint = 0, enfant = 0, externe = 0, etat = "Inscrit") :
+        """
+        Ajoute une participation
+        """
+        # on recupère l'ID du nom
+        self.cursor.execute("SELECT rowid from Agent where nom = '" + nom + "' and prenom ='" + prenom + "'")
+        try :
+            idagent = self.cursor.fetchone()[0]
+        except TypeError :
+            raise TypeError("Agent inconnut")
+        # on recupère l'ID de la commission
+        self.cursor.execute("SELECT rowid from Activitee where nom = '" + activitee +"'")
+        try :
+            idactivitee = self.cursor.fetchone()[0]
+        except TypeError :
+            raise TypeError("Activitee inconnut")
+        self.cursor.execute("INSERT into Participation (idagent, idactivitee, conjoint, enfant, externe, etat) values (" + str(idagent) + "," + str(idactivitee) + "," + str(conjoint) + "," + str(enfant) + "," + str(externe) + ",'" + etat +"')")
+    
+    def participation_liste(self) :
+        """
+        Liste les participation
+        """
+        self.cursor.execute("SELECT * from Participation")
+        return self.cursor.fetchall()
+        
+        
 
     def __del__(self):
         self.bdd.commit()
@@ -110,3 +136,8 @@ if __name__ == '__main__':
     print
     
     print Table("ACTIVITEE SYNTHESE", ["Commission","Nombre"], base.activitee_synthese())
+    print
+    
+    print Table("Participations", ["Nom","Activitée","Conjoint","Enfant","Externe","Etat"], base.participation_liste())
+    print
+    
