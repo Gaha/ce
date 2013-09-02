@@ -114,7 +114,7 @@ class CE(object) :
         """
         Liste les participation
         """
-        self.cursor.execute("SELECT * from Participation")
+        self.cursor.execute("SELECT ag.nom, ag.prenom, ac.nom, pa.conjoint, pa.enfant, pa.externe, pa.etat FROM Participation pa INNER JOIN Agent ag ON pa.idagent = ag.rowid INNER JOIN Activitee ac ON pa.idactivitee = ac.rowid")
         return self.cursor.fetchall()
         
         
@@ -138,6 +138,7 @@ if __name__ == '__main__':
     print Table("ACTIVITEE SYNTHESE", ["Commission","Nombre"], base.activitee_synthese())
     print
     
-    print Table("Participations", ["Nom","Activitée","Conjoint","Enfant","Externe","Etat"], base.participation_liste())
+    print base.participation_liste()
+    print Table("Participations", ["Nom","Prenom","Activitée","Conjoint","Enfant","Externe","Etat"], base.participation_liste())
     print
     
