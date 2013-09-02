@@ -52,6 +52,20 @@ class CE(object) :
         self.cursor.execute("SELECT * from Commission")
         return self.cursor.fetchall()
 	
+    def commission_synthese(self, commission = None) :
+        """
+        Synthèse des commissions
+        Peuvent être filtré par commission
+        """
+        if commission :
+            rapport = ''
+            for lis in commission :
+                rapport = rapport + "'" + lis + "',"
+            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid WHERE co.nom in (" + rapport[:-1] + ") group by co.nom")
+        else :
+            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid group by co.nom")
+        return self.cursor.fetchall()
+    
     def activitee_ajout(self, nom, commission) :
         """
         Ajoute une activitée
@@ -78,19 +92,6 @@ class CE(object) :
             self.cursor.execute("SELECT ac.nom, co.nom, ac.date from Activitee ac INNER JOIN Commission co ON ac.idcommission = co.rowid")
         return self.cursor.fetchall()
     
-    def activitee_synthese(self, commission = None) :
-        """
-        Synthèse des activitées
-        Peuvent être filtré par commission
-        """
-        if commission :
-            rapport = ''
-            for lis in commission :
-                rapport = rapport + "'" + lis + "',"
-            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid WHERE co.nom in (" + rapport[:-1] + ") group by co.nom")
-        else :
-            self.cursor.execute("SELECT co.nom, count(ac.idcommission) as Total from Activitee ac inner join Commission co ON ac.idcommission = co.rowid group by co.nom")
-        return self.cursor.fetchall()
     
     def participation_ajout(self, nom, prenom, activitee, conjoint = 0, enfant = 0, externe = 0, etat = "Inscrit") :
         """
@@ -139,10 +140,10 @@ if __name__ == '__main__':
     print Table("COMMISSION", ["Nom"], base.commission_liste())
     print
     
-    print Table("ACTIVITEE", ["Nom","Commission","Date"], base.activitee_liste())
+    print Table("COMMISSION SYNTHESE", ["Commission","Activitée"], base.commission_synthese())
     print
     
-    print Table("ACTIVITEE SYNTHESE", ["Commission","Nombre"], base.activitee_synthese())
+    print Table("ACTIVITEE", ["Nom","Commission","Date"], base.activitee_liste())
     print
     
     print Table("Participations", ["Nom","Prenom","Activitée","Conjoint","Enfant","Externe","Etat"], base.participation_liste())
